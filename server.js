@@ -31,8 +31,9 @@ app.get('/health/db', async (req, res) => {
   }
 });
 
-// Les endpoints métier (création de profil, match, reveal) viendront en
-// Phase 2, en branchant lib/chiffrement.js, lib/correspondance.js, etc.
+// --- Endpoints métier (Phase 2) ---
+app.use('/profil', require('./routes/profil'));
+// (match, reveal viendront ensuite)
 
 const PORT = process.env.PORT || 3000;
 const HOST = '127.0.0.1'; // jamais exposé en direct : le reverse proxy s'en charge
