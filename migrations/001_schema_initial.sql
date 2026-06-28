@@ -14,7 +14,7 @@
 --      code et sa récupération => suppression RGPD propre et atomique.
 -- =====================================================================
 
-create extension if not exists pgcrypto;  -- gen_random_uuid() (natif en PG13+)
+-- gen_random_uuid() est natif depuis PostgreSQL 13 : aucune extension requise.
 
 -- ---------------------------------------------------------------------
 -- profils : réponses chiffrées, AUCUNE donnée personnelle
