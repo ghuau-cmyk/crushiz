@@ -16,6 +16,7 @@ const { pool } = require('../db');
 const chiffrement = require('../lib/chiffrement');
 const { calculerMatch, BAREME_EXEMPLE } = require('../lib/correspondance');
 const { genererCommentaire, MESSAGE_SOUS_SEUIL } = require('../lib/commentaire');
+const reveal = require('../lib/reveal');
 
 const router = express.Router();
 
@@ -188,6 +189,92 @@ router.get('/:id', async (req, res) => {
     return res.json({ statut: 'accepte', palier, categoriesCommunes: categories, commentaire });
   } catch (e) {
     console.error('lecture match échouée:', e.message);
+    return res.status(500).json({ erreur: 'lecture impossible' });
+  }
+});
+
+// =====================================================================
+//  Déblocage à l'aveugle (reveal) — au sein d'une session ACCEPTÉE.
+//   - un item n'est révélé que si LES DEUX ont tapé "envie"
+//   - un "passe" n'est jamais renvoyé ; aucune info sur l'avancement de l'autre
+// =====================================================================
+
+// Charge la session et vérifie que l'appelant en est un participant.
+async function chargerSessionParticipant(sessionId, profilId) {
+  const s = await pool.query(
+    'select id, profil_a, profil_b, statut from sessions_match where id = $1',
+    [sessionId]
+  );
+  if (s.rowCount === 0) return { code: 404, erreur: 'session inconnue' };
+  const session = s.rows[0];
+  if (session.profil_a !== profilId && session.profil_b !== profilId) {
+    return { code: 403, erreur: 'non autorisé' };
+  }
+  return { session };
+}
+
+// Reconstruit { profilId: { itemId: choix } } depuis reveal_choix.
+async function construireChoix(sessionId) {
+  const r = await pool.query(
+    'select profil_id, item_id, choix from reveal_choix where session_id = $1',
+    [sessionId]
+  );
+  const parProfil = {};
+  for (const row of r.rows) {
+    if (!parProfil[row.profil_id]) parProfil[row.profil_id] = {};
+    parProfil[row.profil_id][row.item_id] = row.choix;
+  }
+  return parProfil;
+}
+
+// POST /match/:id/reveal/choix  { profilId, itemId, choix }
+router.post('/:id/reveal/choix', async (req, res) => {
+  const sessionId = req.params.id;
+  const { profilId, itemId, choix } = req.body || {};
+  if (
+    !estUuid(sessionId) ||
+    !estUuid(profilId) ||
+    typeof itemId !== 'string' ||
+    !itemId.trim() ||
+    (choix !== 'envie' && choix !== 'passe')
+  ) {
+    return res.status(400).json({ erreur: 'paramètres invalides' });
+  }
+  try {
+    const { session, code, erreur } = await chargerSessionParticipant(sessionId, profilId);
+    if (code) return res.status(code).json({ erreur });
+    if (session.statut !== 'accepte') return res.status(409).json({ erreur: 'match non accepté' });
+
+    await pool.query(
+      `insert into reveal_choix (session_id, profil_id, item_id, choix)
+       values ($1, $2, $3, $4)
+       on conflict (session_id, profil_id, item_id) do update set choix = excluded.choix`,
+      [sessionId, profilId, itemId.trim(), choix]
+    );
+
+    const choixParProfil = await construireChoix(sessionId);
+    return res.json(reveal.vuePourAppelant(choixParProfil, profilId));
+  } catch (e) {
+    console.error('reveal choix échoué:', e.message);
+    return res.status(500).json({ erreur: 'enregistrement impossible' });
+  }
+});
+
+// GET /match/:id/reveal?profilId=...  — révélations mutuelles pour l'appelant.
+router.get('/:id/reveal', async (req, res) => {
+  const sessionId = req.params.id;
+  const profilId = req.query.profilId;
+  if (!estUuid(sessionId) || !estUuid(profilId)) {
+    return res.status(400).json({ erreur: 'paramètres invalides' });
+  }
+  try {
+    const { session, code, erreur } = await chargerSessionParticipant(sessionId, profilId);
+    if (code) return res.status(code).json({ erreur });
+    if (session.statut !== 'accepte') return res.status(409).json({ erreur: 'match non accepté' });
+    const choixParProfil = await construireChoix(sessionId);
+    return res.json(reveal.vuePourAppelant(choixParProfil, profilId));
+  } catch (e) {
+    console.error('reveal lecture échouée:', e.message);
     return res.status(500).json({ erreur: 'lecture impossible' });
   }
 });
