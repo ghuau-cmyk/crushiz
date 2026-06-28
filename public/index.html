@@ -2,213 +2,150 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Sukiss — démo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Sukiss</title>
 <style>
-  :root { --rose:#e8567a; --rose-d:#c43d60; --bg:#fbf7f7; --carte:#fff; --txt:#2b2330; --doux:#7a6f76; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--txt); line-height:1.5; }
-  header { text-align:center; padding:32px 16px 8px; }
-  header h1 { margin:0; font-size:2rem; color:var(--rose-d); letter-spacing:.5px; }
-  header p { margin:6px 0 0; color:var(--doux); }
-  main { max-width:560px; margin:0 auto; padding:16px; }
-  .carte { background:var(--carte); border-radius:18px; padding:22px; margin:16px 0; box-shadow:0 6px 24px rgba(196,61,96,.08); }
-  .carte h2 { margin:0 0 4px; font-size:1.2rem; }
-  .carte .sous { color:var(--doux); font-size:.9rem; margin:0 0 16px; }
-  .q { margin:14px 0; }
-  .q .label { font-weight:600; font-size:.95rem; margin-bottom:6px; }
-  .opts { display:flex; flex-wrap:wrap; gap:8px; }
-  .opts label { border:1.5px solid #eadfe3; border-radius:999px; padding:6px 13px; font-size:.85rem; cursor:pointer; background:#fff; transition:.15s; }
-  .opts input { display:none; }
-  .opts input:checked + span { color:#fff; }
-  .opts label:has(input:checked) { background:var(--rose); border-color:var(--rose); color:#fff; }
-  button { background:var(--rose); color:#fff; border:0; border-radius:999px; padding:13px 22px; font-size:1rem; font-weight:600; cursor:pointer; width:100%; transition:.15s; }
-  button:hover { background:var(--rose-d); }
-  button:disabled { background:#d9ccd1; cursor:not-allowed; }
-  .resultat { margin-top:16px; padding:16px; border-radius:14px; background:#fdf0f3; display:none; }
-  .resultat.on { display:block; }
-  .secret { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:1.15rem; letter-spacing:1px; background:#fff; border:1.5px dashed var(--rose); border-radius:10px; padding:10px 12px; margin:6px 0 14px; word-break:break-all; text-align:center; }
-  .palier { font-size:1.6rem; font-weight:800; text-transform:capitalize; }
-  .palier.faible{color:#b08900}.palier.moyen{color:#d2784f}.palier.fort{color:var(--rose-d)}
-  .tags { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
-  .tag { background:#fff; border:1px solid var(--rose); color:var(--rose-d); border-radius:999px; padding:3px 10px; font-size:.8rem; }
-  .commentaire { font-style:italic; margin-top:8px; }
-  .cartes-reveal { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-  .cr { display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid #eadfe3; border-radius:12px; padding:10px 14px; }
-  .cr .ch { display:flex; gap:6px; }
-  .cr .ch button { width:auto; padding:6px 12px; font-size:.8rem; }
-  .cr .ch button.passe { background:#eee; color:#555; }
-  .reveles { margin-top:10px; font-size:.9rem; }
-  .err { color:#c0392b; font-size:.9rem; margin-top:8px; }
-  .pied { text-align:center; color:var(--doux); font-size:.8rem; padding:24px; }
-  .note { font-size:.8rem; color:var(--doux); margin-top:10px; }
+  :root{
+    --bg:#f3eef0; --app:#ffffff; --moi:#e8567a; --moi-d:#c43d60;
+    --txt:#2b2330; --doux:#8a7f86; --bulleApp:#eceaef;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column;}
+  header{padding:14px 16px;text-align:center;background:#fff;border-bottom:1px solid #eadfe3;flex:0 0 auto;}
+  header h1{margin:0;font-size:1.15rem;color:var(--moi-d);letter-spacing:.5px;}
+  header .st{font-size:.72rem;color:var(--doux);}
+  #chat{flex:1 1 auto;overflow-y:auto;padding:18px 14px 8px;display:flex;flex-direction:column;gap:10px;}
+  .ligne{display:flex;max-width:84%;}
+  .ligne.app{align-self:flex-start;}
+  .ligne.moi{align-self:flex-end;}
+  .bulle{padding:10px 14px;border-radius:20px;font-size:.98rem;line-height:1.4;animation:pop .25s ease;}
+  .app .bulle{background:var(--bulleApp);color:var(--txt);border-bottom-left-radius:6px;}
+  .moi .bulle{background:var(--moi);color:#fff;border-bottom-right-radius:6px;}
+  @keyframes pop{from{opacity:0;transform:translateY(6px) scale(.98);}to{opacity:1;transform:none;}}
+  .secret{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px;background:#fff;border:1.5px dashed var(--moi);color:var(--moi-d);border-radius:10px;padding:9px 12px;margin-top:6px;text-align:center;font-size:1.05rem;word-break:break-all;}
+  /* indicateur "en train d'ecrire" */
+  .typing .bulle{background:var(--bulleApp);display:flex;gap:4px;align-items:center;}
+  .typing .pt{width:7px;height:7px;border-radius:50%;background:#b9adb4;animation:bl 1.2s infinite;}
+  .typing .pt:nth-child(2){animation-delay:.2s}.typing .pt:nth-child(3){animation-delay:.4s}
+  @keyframes bl{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+  /* zone d'options */
+  #zone{flex:0 0 auto;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #eadfe3;}
+  #opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;}
+  .chip{border:1.5px solid var(--moi);color:var(--moi-d);background:#fff;border-radius:999px;padding:9px 16px;font-size:.92rem;font-weight:600;cursor:pointer;transition:.12s;}
+  .chip:hover{background:var(--moi);color:#fff;}
+  .chip:active{transform:scale(.96);}
+  .vide{color:var(--doux);font-size:.8rem;text-align:center;padding:6px;}
 </style>
 </head>
 <body>
 <header>
   <h1>Sukiss</h1>
-  <p>Démo — la compatibilité, en douceur et en privé</p>
+  <div class="st">conversation privée · réponses chiffrées</div>
 </header>
-
-<main>
-  <!-- 1. Création de profil -->
-  <section class="carte">
-    <h2>1 · Crée ton profil</h2>
-    <p class="sous">Réponds (ou garde les choix par défaut), puis valide. Tes réponses sont chiffrées ; on ne te montre ton code et ta phrase qu'une seule fois.</p>
-    <div id="questions"></div>
-    <button id="btnCreer">Créer mon profil</button>
-    <div id="resCreer" class="resultat">
-      <div><strong>Ton code à partager :</strong></div>
-      <div class="secret" id="monCode"></div>
-      <div><strong>Ta phrase de récupération (note-la !) :</strong></div>
-      <div class="secret" id="maPhrase"></div>
-      <div class="note">Garde-les : le code sert à matcher, la phrase à retrouver ton profil. On ne les réaffichera jamais.</div>
-    </div>
-    <div id="errCreer" class="err"></div>
-  </section>
-
-  <!-- 2. Démo de match -->
-  <section class="carte">
-    <h2>2 · Découvre un match</h2>
-    <p class="sous">Pour la démo, on crée un profil « partenaire » compatible et on calcule votre match. Rien n'est révélé sans double consentement, et seul le résultat global est gardé.</p>
-    <button id="btnMatch" disabled>Lancer une démo de match</button>
-    <div id="resMatch" class="resultat">
-      <div>Votre niveau d'accord :</div>
-      <div class="palier" id="palier"></div>
-      <div class="tags" id="tags"></div>
-      <div class="commentaire" id="commentaire"></div>
-
-      <div id="blocReveal" style="margin-top:18px;">
-        <strong>Déblocage à l'aveugle</strong>
-        <div class="note">Tape « envie » ou « passe ». Un item n'apparaît que si vous l'avez voulu <em>tous les deux</em> — sinon tu ne sauras jamais ce que l'autre a choisi.</div>
-        <div class="cartes-reveal" id="cartesReveal"></div>
-        <div class="reveles" id="reveles"></div>
-      </div>
-    </div>
-    <div id="errMatch" class="err"></div>
-  </section>
-
-  <p class="pied">Démo technique — Phase 2. Le vrai questionnaire et l'app complète viendront en Phase 3.</p>
-</main>
+<div id="chat"></div>
+<div id="zone"><div id="opts"></div></div>
 
 <script>
-// --- Barème de démo (mêmes ids que BAREME_EXEMPLE côté serveur) ---
+// === Barème (ids alignés sur BAREME_EXEMPLE côté serveur) ===
 const QUESTIONS = [
-  { id:'q1', label:'Ton énergie au quotidien ?', opts:[['discret','Discret'],['tranquille','Tranquille'],['present','Présent'],['tout_le_temps','À fond']] },
-  { id:'q2', label:'Dans la tendresse, tu privilégies ?', opts:[['tendresse','La tendresse'],['equilibre','L\'équilibre'],['physique','Le physique']] },
-  { id:'q6', label:'Qui prend l\'initiative ?', opts:[['moi','Moi'],['autre','L\'autre'],['tour_de_role','Tour de rôle'],['peu_importe','Peu importe']] },
-  { id:'q7', label:'Ton moment préféré ?', opts:[['matin','Matin'],['apres_midi','Après-midi'],['soir','Soir'],['nimporte','N\'importe']] },
-  { id:'q9', label:'Ton rôle naturel ?', opts:[['meneur','Plutôt mener'],['suiveur','Plutôt suivre'],['alterner','Alterner']] },
-  { id:'q11', label:'Ton rythme ?', opts:[['lent','Lent'],['depend','Ça dépend'],['direct','Direct']] },
-  { id:'b_sens_sensoriel', label:'Sensations tout en douceur ?', opts:[['oui','Oui'],['curieux','Curieux'],['non','Non'],['limite','Pas pour moi']] },
-  { id:'b_sens_consignes', label:'Donner / suivre des consignes ?', opts:[['oui','Oui'],['curieux','Curieux'],['non','Non'],['limite','Pas pour moi']] },
-  { id:'b_sens_consignes_dir', label:'Plutôt donner ou suivre ?', opts:[['donner','Donner'],['suivre','Suivre'],['les_deux','Les deux']] },
-  { id:'b_sens_fessee', label:'Sensations plus intenses ?', opts:[['oui','Oui'],['curieux','Curieux'],['non','Non'],['limite','Pas pour moi']] },
-  { id:'b_sens_fessee_dir', label:'Plutôt actif ou réceptif ?', opts:[['actif','Actif'],['receptif','Réceptif'],['les_deux','Les deux']] },
-  { id:'b_sens_attache', label:'Jeux d\'attache ?', opts:[['oui','Oui'],['curieux','Curieux'],['non','Non'],['limite','Pas pour moi']] },
+  { id:'q1',  t:"Pour commencer en douceur 🙂 ton énergie quand tu passes du temps avec quelqu'un, c'est plutôt…",
+    o:[['discret','Discrète'],['tranquille','Tranquille'],['present','Présente'],['tout_le_temps','À fond']] },
+  { id:'q2',  t:"Et côté tendresse, ce qui te fait vibrer en premier ?",
+    o:[['tendresse','La tendresse'],['equilibre','Un équilibre'],['physique','Le physique']] },
+  { id:'q6',  t:"Quand ça se rapproche, qui aime mener la danse ?",
+    o:[['moi','Plutôt moi'],['autre','Plutôt l’autre'],['tour_de_role','Tour de rôle'],['peu_importe','Peu importe']] },
+  { id:'q7',  t:"Ton moment idéal pour un moment à deux ?",
+    o:[['matin','Le matin'],['apres_midi','L’après-midi'],['soir','Le soir'],['nimporte','N’importe quand']] },
+  { id:'q9',  t:"Tu te sens plutôt…",
+    o:[['meneur','Du genre à mener'],['suiveur','Du genre à suivre'],['alterner','J’aime alterner']] },
+  { id:'q11', t:"Et ton rythme à toi ?",
+    o:[['lent','Lent, j’aime prendre le temps'],['depend','Ça dépend'],['direct','Direct']] },
+  { id:'b_sens_sensoriel', t:"On explore un peu plus ? La douceur, les sensations tout en lenteur… ça te tente ?",
+    o:[['oui','Oui'],['curieux','Curieux·se'],['non','Bof'],['limite','Pas mon truc']] },
+  { id:'b_sens_consignes', t:"Donner ou recevoir de petites consignes, ça t’intrigue ?",
+    o:[['oui','Oui'],['curieux','Curieux·se'],['non','Bof'],['limite','Pas mon truc']] },
+  { id:'b_sens_consignes_dir', t:"Et tu te verrais plutôt…",
+    o:[['donner','Donner'],['suivre','Suivre'],['les_deux','Les deux']] },
+  { id:'b_sens_fessee', t:"Des sensations un peu plus corsées ?",
+    o:[['oui','Oui'],['curieux','Curieux·se'],['non','Bof'],['limite','Pas mon truc']] },
+  { id:'b_sens_fessee_dir', t:"Tu t’y verrais plutôt…",
+    o:[['actif','Actif·ve'],['receptif','Réceptif·ve'],['les_deux','Les deux']] },
+  { id:'b_sens_attache', t:"Dernière : les jeux d’attache, ça te parle ?",
+    o:[['oui','Oui'],['curieux','Curieux·se'],['non','Bof'],['limite','Pas mon truc']] },
 ];
 
-let monProfil = null; // {id, code}
+const CLE_STOCK = 'sukiss_reponses';
+const chat = document.getElementById('chat');
+const optsBox = document.getElementById('opts');
+let reponses = JSON.parse(localStorage.getItem(CLE_STOCK) || '{}');
+let idx = 0;
 
-// Rendu du questionnaire (1ère option pré-cochée pour aller vite)
-const qDiv = document.getElementById('questions');
-QUESTIONS.forEach(q => {
-  const bloc = document.createElement('div'); bloc.className = 'q';
-  bloc.innerHTML = '<div class="label">'+q.label+'</div>';
-  const opts = document.createElement('div'); opts.className = 'opts';
-  q.opts.forEach(([val,txt], i) => {
-    const lab = document.createElement('label');
-    lab.innerHTML = '<input type="radio" name="'+q.id+'" value="'+val+'"'+(i===0?' checked':'')+'><span>'+txt+'</span>';
-    opts.appendChild(lab);
-  });
-  bloc.appendChild(opts); qDiv.appendChild(bloc);
-});
+const dodo = (ms)=>new Promise(r=>setTimeout(r,ms));
+const scroll = ()=>{ chat.scrollTop = chat.scrollHeight; };
 
-function lireReponses() {
-  const r = {};
-  QUESTIONS.forEach(q => {
-    const sel = document.querySelector('input[name="'+q.id+'"]:checked');
-    if (sel) r[q.id] = sel.value;
-  });
-  return r;
+function bulle(cote, html){
+  const l = document.createElement('div'); l.className='ligne '+cote;
+  const b = document.createElement('div'); b.className='bulle'; b.innerHTML=html;
+  l.appendChild(b); chat.appendChild(l); scroll(); return l;
 }
 
-async function api(method, url, body) {
-  const opt = { method, headers:{} };
-  if (body) { opt.headers['Content-Type']='application/json'; opt.body=JSON.stringify(body); }
-  const res = await fetch(url, opt);
-  const data = await res.json().catch(()=>({}));
-  if (!res.ok) throw new Error(data.erreur || ('Erreur '+res.status));
-  return data;
+async function appDit(html, pause=700){
+  const t = document.createElement('div'); t.className='ligne app typing';
+  t.innerHTML='<div class="bulle"><span class="pt"></span><span class="pt"></span><span class="pt"></span></div>';
+  chat.appendChild(t); scroll();
+  await dodo(pause);
+  t.remove();
+  bulle('app', html);
 }
 
-// 1. Créer profil
-document.getElementById('btnCreer').addEventListener('click', async () => {
-  const btn = document.getElementById('btnCreer'); const err = document.getElementById('errCreer');
-  err.textContent = ''; btn.disabled = true; btn.textContent = 'Création…';
-  try {
-    const d = await api('POST','/profil',{ reponses: lireReponses() });
-    monProfil = { id:d.id, code:d.code };
-    document.getElementById('monCode').textContent = d.code;
-    document.getElementById('maPhrase').textContent = d.phrase;
-    document.getElementById('resCreer').classList.add('on');
-    document.getElementById('btnMatch').disabled = false;
-    btn.textContent = 'Profil créé ✓';
-  } catch(e) {
-    err.textContent = e.message; btn.disabled = false; btn.textContent = 'Créer mon profil';
+function montrerOptions(opts, onPick){
+  optsBox.innerHTML='';
+  opts.forEach(([val,txt])=>{
+    const c = document.createElement('button'); c.className='chip'; c.textContent=txt;
+    c.onclick = ()=>{ optsBox.innerHTML=''; onPick(val, txt); };
+    optsBox.appendChild(c);
+  });
+}
+
+async function poser(){
+  if (idx >= QUESTIONS.length) return finir();
+  const q = QUESTIONS[idx];
+  await appDit(q.t);
+  montrerOptions(q.o, async (val,txt)=>{
+    bulle('moi', txt);
+    reponses[q.id] = val;
+    localStorage.setItem(CLE_STOCK, JSON.stringify(reponses));
+    idx++;
+    await dodo(250);
+    poser();
+  });
+}
+
+async function finir(){
+  await appDit("C’est tout 🎉 Je crée ton profil — tes réponses sont chiffrées avant d’être enregistrées.");
+  optsBox.innerHTML='<div class="vide">…</div>';
+  try{
+    const res = await fetch('/profil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reponses})});
+    const d = await res.json();
+    if(!res.ok) throw new Error(d.erreur||('Erreur '+res.status));
+    localStorage.removeItem(CLE_STOCK);
+    await appDit("Voici ton <strong>code à partager</strong> (donne-le à quelqu’un pour voir si vous matchez) :<div class='secret'>"+d.code+"</div>");
+    await appDit("Et ta <strong>phrase de récupération</strong> — note-la précieusement, elle sert à retrouver ton profil et ne sera plus jamais affichée :<div class='secret'>"+d.phrase+"</div>", 900);
+    await appDit("Voilà, ton profil est prêt 🌸");
+    optsBox.innerHTML='<div class="vide">Profil créé ✓</div>';
+  }catch(e){
+    await appDit("Aïe, un souci à la création : "+e.message);
+    montrerOptions([['retry','Réessayer']], finir);
   }
-});
-
-// 2. Démo de match (crée un partenaire, initie, accepte, affiche)
-let sessionDemo = null, partenaireId = null;
-document.getElementById('btnMatch').addEventListener('click', async () => {
-  const btn = document.getElementById('btnMatch'); const err = document.getElementById('errMatch');
-  err.textContent=''; btn.disabled=true; btn.textContent='Calcul…';
-  try {
-    // partenaire avec des réponses proches des tiennes
-    const part = await api('POST','/profil',{ reponses: lireReponses() });
-    partenaireId = part.id;
-    const sess = await api('POST','/match/initier',{ profilId: monProfil.id, code: part.code });
-    sessionDemo = sess.sessionId;
-    const r = await api('POST','/match/'+sessionDemo+'/repondre',{ profilId: partenaireId, accepte:true });
-
-    const pal = document.getElementById('palier');
-    pal.textContent = r.palier || '—'; pal.className = 'palier '+(r.palier||'');
-    document.getElementById('tags').innerHTML = (r.categoriesCommunes||[]).map(c=>'<span class="tag">'+c.replace(/_/g,' ')+'</span>').join('');
-    document.getElementById('commentaire').textContent = r.commentaire || '';
-    document.getElementById('resMatch').classList.add('on');
-    rendreReveal();
-    btn.textContent = 'Match calculé ✓';
-  } catch(e) {
-    err.textContent = e.message; btn.disabled=false; btn.textContent='Lancer une démo de match';
-  }
-});
-
-// 3. Déblocage à l'aveugle (le partenaire de démo dit "envie" sur carte 1 et 3)
-const CARTES = [ ['carte_a','Une soirée lente et sensuelle'], ['carte_b','Essayer quelque chose de nouveau'], ['carte_c','Un jeu de rôles assumé'] ];
-const partenaireChoix = { carte_a:'envie', carte_b:'passe', carte_c:'envie' };
-function rendreReveal() {
-  const c = document.getElementById('cartesReveal'); c.innerHTML='';
-  CARTES.forEach(([id,txt]) => {
-    const row = document.createElement('div'); row.className='cr';
-    row.innerHTML = '<span>'+txt+'</span><span class="ch"><button data-i="'+id+'" data-c="envie">Envie</button><button class="passe" data-i="'+id+'" data-c="passe">Passe</button></span>';
-    c.appendChild(row);
-  });
-  c.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
-    const itemId=b.dataset.i, choix=b.dataset.c;
-    try {
-      // mon choix
-      await api('POST','/match/'+sessionDemo+'/reveal/choix',{ profilId: monProfil.id, itemId, choix });
-      // le partenaire de démo a déjà son choix
-      await api('POST','/match/'+sessionDemo+'/reveal/choix',{ profilId: partenaireId, itemId, choix: partenaireChoix[itemId] });
-      const v = await api('GET','/match/'+sessionDemo+'/reveal?profilId='+monProfil.id);
-      const noms = Object.fromEntries(CARTES);
-      document.getElementById('reveles').innerHTML = v.revelations.length
-        ? '💞 Vous avez tous les deux envie de : <strong>'+v.revelations.map(i=>noms[i]).join(', ')+'</strong>'
-        : 'Rien de mutuel pour l\'instant — et tu ne sauras jamais ce que l\'autre a passé.';
-    } catch(e){ document.getElementById('errMatch').textContent = e.message; }
-  }));
 }
+
+// Démarrage
+(async ()=>{
+  await appDit("Salut 👋 On fait connaissance en quelques questions ?");
+  await appDit("Personne d’autre ne verra tes réponses : elles sont chiffrées, et je ne te montrerai qu’une question à la fois.", 900);
+  montrerOptions([['go','C’est parti !']], ()=>{ bulle('moi','C’est parti !'); poser(); });
+})();
 </script>
 </body>
 </html>
