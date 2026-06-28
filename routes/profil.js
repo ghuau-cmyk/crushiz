@@ -60,8 +60,9 @@ router.post('/', async (req, res) => {
 
     await client.query('commit');
 
-    // UNE SEULE FOIS : le client doit sauvegarder code + phrase.
-    return res.status(201).json({ code, phrase });
+    // UNE SEULE FOIS : le client doit sauvegarder id + code + phrase.
+    // `id` = identifiant privé du client (à conserver, sert à initier des matchs).
+    return res.status(201).json({ id: profilId, code, phrase });
   } catch (e) {
     await client.query('rollback');
     console.error('création profil échouée:', e.message); // jamais les données sensibles

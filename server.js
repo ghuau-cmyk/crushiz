@@ -7,6 +7,11 @@ require('dotenv').config();
 const express = require('express');
 
 const app = express();
+
+// Derrière le reverse proxy Apache (loopback) : permet de lire la vraie IP
+// client (X-Forwarded-For) pour le rate-limiting.
+app.set('trust proxy', 'loopback');
+
 app.use(express.json({ limit: '256kb' }));
 
 // ---------------------------------------------------------------------
@@ -33,7 +38,8 @@ app.get('/health/db', async (req, res) => {
 
 // --- Endpoints métier (Phase 2) ---
 app.use('/profil', require('./routes/profil'));
-// (match, reveal viendront ensuite)
+app.use('/match', require('./routes/match'));
+// (reveal viendra ensuite)
 
 const PORT = process.env.PORT || 3000;
 const HOST = '127.0.0.1'; // jamais exposé en direct : le reverse proxy s'en charge
