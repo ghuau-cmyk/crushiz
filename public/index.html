@@ -3,47 +3,97 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Sukiss</title>
+<title>chrushiz</title>
 <style>
   :root{
-    --bg:#f3eef0; --moi:#e8567a; --moi-d:#c43d60;
-    --txt:#2b2330; --doux:#8a7f86; --bulleApp:#eceaef;
+    --moi:#e8567a; --moi-d:#c43d60; --bg:#f5eef1;
+    --txt:#2b2330; --doux:#8a7f86;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;margin:0;}
-  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column;}
-  header{padding:14px 16px;text-align:center;background:#fff;border-bottom:1px solid #eadfe3;flex:0 0 auto;}
-  header h1{margin:0;font-size:1.15rem;color:var(--moi-d);letter-spacing:.5px;}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column;transition:background .3s;}
+  header{position:relative;padding:14px 16px;text-align:center;background:#fff;border-bottom:1px solid #e7e0e4;flex:0 0 auto;}
+  header h1{margin:0;font-size:1.15rem;color:var(--moi-d);letter-spacing:.5px;transition:color .3s;}
   header .st{font-size:.72rem;color:var(--doux);}
+  #gear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:0;font-size:1.3rem;cursor:pointer;padding:6px;line-height:1;}
   #chat{flex:1 1 auto;overflow-y:auto;padding:18px 14px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;}
   .ligne{display:flex;max-width:84%;}
   .ligne.app{align-self:flex-start;}
   .ligne.moi{align-self:flex-end;}
   .bulle{padding:10px 14px;border-radius:20px;font-size:.98rem;line-height:1.4;animation:pop .25s ease;}
-  .app .bulle{background:var(--bulleApp);color:var(--txt);border-bottom-left-radius:6px;}
+  .app .bulle{background:#fff;color:var(--txt);border:1px solid #e7e0e4;box-shadow:0 1px 2px rgba(0,0,0,.05);border-bottom-left-radius:6px;}
   .moi .bulle{background:var(--moi);color:#fff;border-bottom-right-radius:6px;}
   @keyframes pop{from{opacity:0;transform:translateY(6px) scale(.98);}to{opacity:1;transform:none;}}
   .secret{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px;background:#fff;border:1.5px dashed var(--moi);color:var(--moi-d);border-radius:10px;padding:9px 12px;margin-top:6px;text-align:center;font-size:1.05rem;word-break:break-all;}
-  /* indicateur "en train d'ecrire" */
   .typing .bulle{display:flex;gap:4px;align-items:center;}
   .typing .pt{width:7px;height:7px;border-radius:50%;background:#b9adb4;animation:bl 1.2s infinite;}
   .typing .pt:nth-child(2){animation-delay:.2s}.typing .pt:nth-child(3){animation-delay:.4s}
   @keyframes bl{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
-  /* options INLINE, alignées à droite (côté "moi") */
-  .options{align-self:flex-end;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;max-width:88%;animation:pop .25s ease;}
+  .options{align-self:flex-end;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;max-width:90%;animation:pop .25s ease;}
   .chip{border:1.5px solid var(--moi);color:var(--moi-d);background:#fff;border-radius:999px;padding:9px 16px;font-size:.92rem;font-weight:600;cursor:pointer;transition:.12s;}
   .chip:hover{background:var(--moi);color:#fff;}
   .chip:active{transform:scale(.95);}
+  /* Réglages */
+  #overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:20px;z-index:10;}
+  #overlay.on{display:flex;}
+  .panneau{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:340px;box-shadow:0 12px 40px rgba(0,0,0,.2);}
+  .panneau h3{margin:0 0 4px;}
+  .panneau p{margin:0 0 16px;color:var(--doux);font-size:.85rem;}
+  .swatches{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+  .sw{width:44px;height:44px;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 0 0 1.5px #ddd;transition:.12s;}
+  .sw:hover{transform:scale(1.1);}
+  .fermer{margin-top:18px;width:100%;background:#eee;border:0;border-radius:999px;padding:11px;font-weight:600;cursor:pointer;}
 </style>
 </head>
 <body>
 <header>
-  <h1>Sukiss</h1>
+  <h1>chrushiz</h1>
   <div class="st">conversation privée · réponses chiffrées</div>
+  <button id="gear" title="Réglages">⚙️</button>
 </header>
 <div id="chat"></div>
 
+<div id="overlay">
+  <div class="panneau">
+    <h3>Couleurs</h3>
+    <p>Choisis l'ambiance qui te plaît.</p>
+    <div class="swatches" id="swatches"></div>
+    <button class="fermer" id="fermerReglages">Fermer</button>
+  </div>
+</div>
+
 <script>
+// === Thèmes ===
+const THEMES = {
+  rose:  { moi:'#e8567a', moiD:'#c43d60', bg:'#f5eef1' },
+  bleu:  { moi:'#3f8fd4', moiD:'#2f6ca6', bg:'#eef3f8' },
+  violet:{ moi:'#8a6bd1', moiD:'#6b4fb0', bg:'#f1eef8' },
+  vert:  { moi:'#3fb389', moiD:'#2e8e6c', bg:'#ecf5f1' },
+  ambre: { moi:'#e0915a', moiD:'#c0703a', bg:'#f7f1ea' },
+};
+function appliquerTheme(nom, parUtilisateur){
+  const t = THEMES[nom] || THEMES.rose;
+  const r = document.documentElement.style;
+  r.setProperty('--moi', t.moi); r.setProperty('--moi-d', t.moiD); r.setProperty('--bg', t.bg);
+  localStorage.setItem('chrushiz_theme', nom);
+  if (parUtilisateur) localStorage.setItem('chrushiz_theme_choisi', '1');
+}
+// applique le thème mémorisé au chargement
+appliquerTheme(localStorage.getItem('chrushiz_theme') || 'rose');
+
+// Panneau réglages
+const overlay = document.getElementById('overlay');
+const sw = document.getElementById('swatches');
+Object.entries(THEMES).forEach(([nom,t])=>{
+  const d = document.createElement('div'); d.className='sw'; d.style.background=t.moi; d.title=nom;
+  d.onclick = ()=>{ appliquerTheme(nom, true); overlay.classList.remove('on'); };
+  sw.appendChild(d);
+});
+document.getElementById('gear').onclick = ()=> overlay.classList.add('on');
+document.getElementById('fermerReglages').onclick = ()=> overlay.classList.remove('on');
+overlay.onclick = (e)=>{ if(e.target===overlay) overlay.classList.remove('on'); };
+
+// === Questionnaire ===
 const QUESTIONS = [
   { id:'q1',  t:"Pour commencer en douceur 🙂 ton énergie quand tu passes du temps avec quelqu'un, c'est plutôt…",
     o:[['discret','Discrète'],['tranquille','Tranquille'],['present','Présente'],['tout_le_temps','À fond']] },
@@ -71,7 +121,7 @@ const QUESTIONS = [
     o:[['oui','Oui'],['curieux','Curieux·se'],['non','Bof'],['limite','Pas mon truc']] },
 ];
 
-const CLE_STOCK = 'sukiss_reponses';
+const CLE_STOCK = 'chrushiz_reponses';
 const chat = document.getElementById('chat');
 let reponses = JSON.parse(localStorage.getItem(CLE_STOCK) || '{}');
 let idx = 0;
@@ -84,7 +134,6 @@ function bulle(cote, html){
   const b = document.createElement('div'); b.className='bulle'; b.innerHTML=html;
   l.appendChild(b); chat.appendChild(l); scroll(); return l;
 }
-
 async function appDit(html, pause=700){
   const t = document.createElement('div'); t.className='ligne app typing';
   t.innerHTML='<div class="bulle"><span class="pt"></span><span class="pt"></span><span class="pt"></span></div>';
@@ -93,9 +142,6 @@ async function appDit(html, pause=700){
   t.remove();
   return bulle('app', html);
 }
-
-// Options INLINE, dans le fil, alignées à droite. Au clic : disparaissent et
-// laissent place à la bulle "moi".
 function montrerOptions(opts, onPick){
   const row = document.createElement('div'); row.className='options';
   opts.forEach(([val,txt])=>{
@@ -104,6 +150,21 @@ function montrerOptions(opts, onPick){
     row.appendChild(c);
   });
   chat.appendChild(row); scroll();
+}
+
+async function demanderGenre(){
+  await appDit("Avant tout, tu es…");
+  montrerOptions([['femme','Une femme'],['homme','Un homme']], async (val,txt)=>{
+    bulle('moi', txt);
+    reponses.genre = val;
+    localStorage.setItem(CLE_STOCK, JSON.stringify(reponses));
+    // thème auto selon le genre, sauf si l'utilisateur a déjà choisi dans les réglages
+    if (localStorage.getItem('chrushiz_theme_choisi') !== '1') {
+      appliquerTheme(val === 'homme' ? 'bleu' : 'rose');
+    }
+    await dodo(300);
+    poser();
+  });
 }
 
 async function poser(){
@@ -139,7 +200,7 @@ async function finir(){
 (async ()=>{
   await appDit("Salut 👋 On fait connaissance en quelques questions ?");
   await appDit("Personne d’autre ne verra tes réponses : elles sont chiffrées, et je ne te montrerai qu’une question à la fois.", 900);
-  montrerOptions([['go','C’est parti !']], ()=>{ bulle('moi','C’est parti !'); poser(); });
+  montrerOptions([['go','C’est parti !']], async ()=>{ bulle('moi','C’est parti !'); await dodo(300); demanderGenre(); });
 })();
 </script>
 </body>
