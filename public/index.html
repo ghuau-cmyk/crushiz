@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>chrushiz</title>
+<title>crushiz</title>
 <style>
   :root{
     --moi:#e8567a; --moi-d:#c43d60; --bg:#f5eef1;
@@ -47,7 +47,7 @@
 </head>
 <body>
 <header>
-  <h1>chrushiz</h1>
+  <h1>crushiz</h1>
   <div class="st">conversation privée · réponses chiffrées</div>
   <button id="gear" title="Réglages">⚙️</button>
 </header>
@@ -75,11 +75,11 @@ function appliquerTheme(nom, parUtilisateur){
   const t = THEMES[nom] || THEMES.rose;
   const r = document.documentElement.style;
   r.setProperty('--moi', t.moi); r.setProperty('--moi-d', t.moiD); r.setProperty('--bg', t.bg);
-  localStorage.setItem('chrushiz_theme', nom);
-  if (parUtilisateur) localStorage.setItem('chrushiz_theme_choisi', '1');
+  localStorage.setItem('crushiz_theme', nom);
+  if (parUtilisateur) localStorage.setItem('crushiz_theme_choisi', '1');
 }
 // applique le thème mémorisé au chargement
-appliquerTheme(localStorage.getItem('chrushiz_theme') || 'rose');
+appliquerTheme(localStorage.getItem('crushiz_theme') || 'rose');
 
 // Panneau réglages
 const overlay = document.getElementById('overlay');
@@ -121,7 +121,7 @@ const QUESTIONS = [
     o:[['oui','Oui'],['curieux','Curieux·se'],['non','Bof'],['limite','Pas mon truc']] },
 ];
 
-const CLE_STOCK = 'chrushiz_reponses';
+const CLE_STOCK = 'crushiz_reponses';
 const chat = document.getElementById('chat');
 let reponses = JSON.parse(localStorage.getItem(CLE_STOCK) || '{}');
 let idx = 0;
@@ -159,7 +159,7 @@ async function demanderGenre(){
     reponses.genre = val;
     localStorage.setItem(CLE_STOCK, JSON.stringify(reponses));
     // thème auto selon le genre, sauf si l'utilisateur a déjà choisi dans les réglages
-    if (localStorage.getItem('chrushiz_theme_choisi') !== '1') {
+    if (localStorage.getItem('crushiz_theme_choisi') !== '1') {
       appliquerTheme(val === 'homme' ? 'bleu' : 'rose');
     }
     await dodo(300);
