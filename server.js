@@ -5,6 +5,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const path = require('path');
 
 const app = express();
 
@@ -13,6 +14,9 @@ const app = express();
 app.set('trust proxy', 'loopback');
 
 app.use(express.json({ limit: '256kb' }));
+
+// Page de démo (frontend statique) servie à la racine.
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ---------------------------------------------------------------------
 //  M1 — Santé du pipeline. Ne dépend NI de la base NI des secrets :
